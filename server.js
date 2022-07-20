@@ -5,46 +5,28 @@ const express = require('express');
 // CORS - cross origin resource sharing
 // origin - the beginning of your url
 const cors = require('cors');
-const data = require('./data.json');
+const weatherData = require('./data/weather.json');
 
 
 // singleton ( there can only be one!! )
 const app = express(); // returns an object, with methods designed to handle Requests.
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3001;
 
 // enable cross origin resource sharing between localhost:3001 and any other url that may make a request.
 app.use(cors());
 
 //provide the app object, with verbs and paths
-app.get('/hello', (request, response) => {
-  console.log(request);
+app.get('/weather', (request, response) => {
+  let searchQuery = request.query.city;
+
+  console.log('searchQuery', searchQuery);
+  const city = weatherData.find(element => element.city_name.toLowerCase() === searchQuery.toLowerCase());
+  console.log('TESTING:', city.data);
   // do something
-  response.send('hey there'); // every callback must send back a response.
+  response.send(city.data); // every callback must send back a response.
 });
 
-// route with query parameters
-app.get('/params', (request, response) => {
 
-  console.log(request.query);
-
-  response.send('Thanks for the parameters');
-});
-
-app.get('/pokemon', (request, response) => {
-
-  let pokemonName = request.query.pokemon;
-
-  if (pokemonName) {
-    if (data.pokemon.includes(pokemonName)) {
-      response.send(data.pokemon);
-    } else {
-      response.status(404).send('Pokemon not found');
-    }
-  } else {
-    response.status(400).send('Please give me a pokemon name!');
-  }
-
-});
 
 app.get('/error', (request, response) => {
 
@@ -54,7 +36,7 @@ app.get('/error', (request, response) => {
 
 // error handlers take a special 1st parameter, that will be any error thrown from another route handler
 app.use('*', (error, request, response, next) => {
-  console.log(response);
+  // console.log(response);
   response.status(500).send(error);
 });
 
