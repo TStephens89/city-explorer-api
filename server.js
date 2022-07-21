@@ -15,38 +15,110 @@ const PORT = process.env.PORT || 3001;
 // enable cross origin resource sharing between localhost:3001 and any other url that may make a request.
 app.use(cors());
 
-//provide the app object, with verbs and paths
+class Forecast {
+  constructor(obj) {
+    this.date = obj.datetime;
+    this.description = 'low of ' + obj.low_temp + ', high of ' + obj.high_temp + ' with ' + obj.weather.description.toLowerCase();
+  }
+}
+
+app.use(cors()); // set up cross origin resource sharing
+
+// create a weather route
 app.get('/weather', (request, response) => {
-  let searchQuery = request.query.city;
+  console.log(request.query);
+  let { lat, lon, searchQuery } = request.query;
 
-  console.log('searchQuery', searchQuery);
-  const city = weatherData.find(element => element.city_name.toLowerCase() === searchQuery.toLowerCase());
-  console.log('TESTING:', city.data);
-  // do something
-  response.send(city.data); // every callback must send back a response.
+  if (!lat || !lon || !searchQuery) {
+    throw new Error('Please send lat lon and search query as a query string');
+  }
+
+  // find appropriate value from weatherData
+  // use search Query to find an object within weather data
+  let city = weatherData.find(city => {
+    return city.city_name.toLowerCase() === searchQuery.toLowerCase();
+  });
+
+  if (city) {
+    // create forecast objects for each forcast in city.data
+    let forecastArray = city.data.map(forecast => new Forecast(forecast));
+    response.send(forecastArray);
+  } else {
+    response.status(404).send('City not found');
+  }
 });
 
-
-
-app.get('/error', (request, response) => {
-
-  throw new Error('Server not happy!!');
-
-});
-
-// error handlers take a special 1st parameter, that will be any error thrown from another route handler
+// error handling??
 app.use('*', (error, request, response, next) => {
-  // console.log(response);
+  // next is a function that moves the request to the next middleware
   response.status(500).send(error);
 });
 
-// put error handlers down here
 app.use('*', (request, response) => {
-  console.log('catch all route hit');
-  response.status(404).send('Route Not found :(');
+  response.status(404).send('Route not found');
 });
 
-// opens up the server for requests
 app.listen(PORT, () => {
-  console.log('Server is running on port :: ' + PORT);
+  console.log('Server is running on port : ' + PORT);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//provide the app object, with verbs and paths
+// app.get('/weather', (request, response) => {
+//   let searchQuery = request.query.city;
+
+//   console.log('searchQuery', searchQuery);
+//   const city = weatherData.find(element => element.city_name.toLowerCase() === searchQuery.toLowerCase());
+//   console.log('TESTING:', city.data);
+//   // do something
+//   response.send(city.data); // every callback must send back a response.
+// });
+
+
+
+// app.get('/error', (request, response) => {
+
+//   throw new Error('Server not happy!!');
+
+// });
+
+// // error handlers take a special 1st parameter, that will be any error thrown from another route handler
+// app.use('*', (error, request, response, next) => {
+//   // console.log(response);
+//   response.status(500).send(error);
+// });
+
+// // put error handlers down here
+// app.use('*', (request, response) => {
+//   console.log('catch all route hit');
+//   response.status(404).send('Route Not found :(');
+// });
+
+// // opens up the server for requests
+// app.listen(PORT, () => {
+//   console.log('Server is running on port :: ' + PORT);
+// eslint-disable-next-line eol-last
+// });
