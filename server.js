@@ -8,31 +8,34 @@ const express = require('express');
 // origin - the beginning of your url
 const cors = require('cors');
 const PORT = process.env.PORT || 3001;
-const key = process.env.WEATHER_API_KEY
+const key = process.env.WEATHER_API_KEY;
 // const weatherData = require('./data/weather.json');
 
 // singleton ( there can only be one!! )
 const app = express(); // returns an object, with methods designed to handle Requests.
+app.use(cors()); // set up cross origin resource sharing
 // enable cross origin resource sharing between localhost:3001 and any other url that may make a request.
 // app.use(cors());
 
-// class Forecast {
-//   constructor(obj) {
-//     this.date = obj.datetime;
-//     this.description = 'low of ' + obj.low_temp + ', high of ' + obj.high_temp + ' with ' + obj.weather.description.toLowerCase();
-//     this.searchQuery = '';
-//   }
-// }
+class Forecast {
+  constructor(obj) {
+    this.date = obj.datetime;
+    this.description = obj.weather.description;
+  }
+}
 
-app.use(cors()); // set up cross origin resource sharing
 app.get('/weather', (request, response) => {
   let searchQuery = request.query.searchQuery;
   console.log(searchQuery);
-  let weatherKey = `https://api.weatherbit.io/v2.0/current/search?key=${key}&query=${this.searchQuery}&format=json`;
+  let weatherKey = `https://api.weatherbit.io/v2.0/forecast/daily?key=${key}&city=${searchQuery}&days=5`;
   axios.get(weatherKey)
     .then(res => {
-      console.log(res.data.results);
-      response.send(res.data.results);
+      console.log(res);
+      let weatherArray = res.data.data.map(day => {
+        return new Forecast(day);
+      });
+      console.log(weatherArray);
+      response.send(weatherArray);
     })
     .catch((e) => {
       console.log(e);
@@ -51,17 +54,17 @@ app.get('/weather', (request, response) => {
 
   // find appropriate value from weatherData
   // use search Query to find an object within weather data
-  let city = weatherData.find(city => {
-    return city.city_name.toLowerCase() === searchQuery.toLowerCase();
-  });
+  // let city = weatherData.find(city => {
+  //   return city.city_name.toLowerCase() === searchQuery.toLowerCase();
+  // });
 
-  if (city) {
-    // create forecast objects for each forcast in city.data
-    let forecastArray = city.data.map(forecast => new Forecast(forecast));
-    response.send(forecastArray);
-  } else {
-    response.status(404).send('City not found');
-  }
+  // if (city) {
+  //   // create forecast objects for each forcast in city.data
+  //   let forecastArray = city.data.map(forecast => new Forecast(forecast));
+  //   response.send(forecastArray);
+  // } else {
+  //   response.status(404).send('City not found');
+  // }
 });
 
 // error handling??
