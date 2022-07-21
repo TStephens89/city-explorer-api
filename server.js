@@ -1,37 +1,53 @@
 'use strict';
 
+
 require('dotenv').config();
+const axios = require('axios');
 const express = require('express');
 // CORS - cross origin resource sharing
 // origin - the beginning of your url
 const cors = require('cors');
-const weatherData = require('./data/weather.json');
-
+const PORT = process.env.PORT || 3001;
+const key = process.env.WEATHER_API_KEY
+// const weatherData = require('./data/weather.json');
 
 // singleton ( there can only be one!! )
 const app = express(); // returns an object, with methods designed to handle Requests.
-const PORT = process.env.PORT || 3001;
-
 // enable cross origin resource sharing between localhost:3001 and any other url that may make a request.
-app.use(cors());
+// app.use(cors());
 
-class Forecast {
-  constructor(obj) {
-    this.date = obj.datetime;
-    this.description = 'low of ' + obj.low_temp + ', high of ' + obj.high_temp + ' with ' + obj.weather.description.toLowerCase();
-  }
-}
+// class Forecast {
+//   constructor(obj) {
+//     this.date = obj.datetime;
+//     this.description = 'low of ' + obj.low_temp + ', high of ' + obj.high_temp + ' with ' + obj.weather.description.toLowerCase();
+//     this.searchQuery = '';
+//   }
+// }
 
 app.use(cors()); // set up cross origin resource sharing
-
-// create a weather route
 app.get('/weather', (request, response) => {
-  console.log(request.query);
-  let { lat, lon, searchQuery } = request.query;
+  let searchQuery = request.query.searchQuery;
+  console.log(searchQuery);
+  let weatherKey = `https://api.weatherbit.io/v2.0/current/search?key=${key}&query=${this.searchQuery}&format=json`;
+  axios.get(weatherKey)
+    .then(res => {
+      console.log(res.data.results);
+      response.send(res.data.results);
+    })
+    .catch((e) => {
+      console.log(e);
+      response.status(500).send(e);
+    });
 
-  if (!lat || !lon || !searchQuery) {
-    throw new Error('Please send lat lon and search query as a query string');
-  }
+
+  // create a weather route
+  // app.get('/weather', (request, response) => {
+  //   console.log(request.query);
+  //   let { lat, lon, searchQuery } = request.query;
+
+  //   if (!lat || !lon || !searchQuery) {
+  //     throw new Error('Please send lat lon and search query as a query string');
+  //   }
 
   // find appropriate value from weatherData
   // use search Query to find an object within weather data
