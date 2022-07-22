@@ -47,4 +47,7 @@ Finish time: _probably wont____
 Actual time needed to complete: __not complete yet___
 <img width="1522" alt="image" src="https://user-images.githubusercontent.com/104862689/180108466-7f2999fe-07b8-432d-bc43-80389f9922ca.png">
 
+![Blank diagram (1)](https://user-images.githubusercontent.com/104862689/180573443-83e3105a-be8b-4bcb-a6aa-4122e0680c5e.png)
+
+
 
