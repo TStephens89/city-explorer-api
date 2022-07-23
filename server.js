@@ -7,6 +7,7 @@ const express = require('express');
 // CORS - cross origin resource sharing
 // origin - the beginning of your url
 const cors = require('cors');
+// const movieData = require('./data/movies');
 const PORT = process.env.PORT || 3001;
 const key = process.env.WEATHER_API_KEY;
 // const weatherData = require('./data/weather.json');
@@ -23,7 +24,21 @@ class Forecast {
     this.description = obj.weather.description;
   }
 }
+async function handleMovies(request, response) {
 
+  console.log(request);
+  let movieKey = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=seattle`;
+  await axios.get(movieKey)
+    .then(res => {
+      console.log(res.data.results);
+      response.send(res.data.results);
+    })
+    .catch((e) => {
+      console.log(e);
+      response.status(500).send(e);
+    });
+}
+app.get('/movies', handleMovies);
 app.get('/weather', (request, response) => {
   let searchQuery = request.query.searchQuery;
   console.log(searchQuery);
